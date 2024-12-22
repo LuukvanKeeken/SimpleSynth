@@ -1,5 +1,4 @@
 import serial
-import time
 import pyaudio
 
 # Configure the serial port
@@ -15,14 +14,17 @@ stream = p.open(format=pyaudio.paUInt8,  # 8-bit samples
                 output=True)
 
 # Read and play data live
-start_time = time.time()
-while time.time() - start_time < 150:
-    if ser.in_waiting > 0:
-        byte = ser.read()
-        value = int.from_bytes(byte, byteorder='big')
-        if value in [0, 1]:
-            # Convert 0/1 to 0/255 and write to stream
-            stream.write(bytes([value * 255]))
+try:
+    print("Starting playback, press Ctrl+C to stop...")
+    while True:
+        if ser.in_waiting > 0:
+            byte = ser.read()
+            value = int.from_bytes(byte, byteorder='big')
+            if value in [0, 1]:
+                # Convert 0/1 to 0/255 and write to stream
+                stream.write(bytes([value * 255]))
+except KeyboardInterrupt:
+    print("Stopping playback...")
 
 # Close the serial port
 ser.close()
